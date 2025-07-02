@@ -12,7 +12,7 @@ class SunDataController < ApplicationController
   rescue ArgumentError
     render json: { error: "Invalid parameters" }, status: :bad_request
   rescue ActiveRecord::RecordNotFound
-    render json: { error: "City not found" }, status: :not_found
+    render json: { error: "Location not found" }, status: :not_found
   end
 
   private
@@ -23,10 +23,8 @@ class SunDataController < ApplicationController
     @city = City.find_by!(name: params[:location])
     @lat = @city.latitude
     @lng = @city.longitude
-
-
-
     raise ArgumentError if @start_date > @end_date
+    raise ArgumentError if @end_date - @start_date > 30
   end
 
   def fetch_sun_events
