@@ -11,6 +11,8 @@ class SunDataController < ApplicationController
     }
   rescue ArgumentError
     render json: { error: "Invalid parameters" }, status: :bad_request
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "City not found" }, status: :not_found
   end
 
   private
@@ -18,8 +20,11 @@ class SunDataController < ApplicationController
   def validate_params
     @start_date = Date.parse(params[:start_date])
     @end_date = Date.parse(params[:end_date])
-    @lat = params[:lat] || 38.907192 # temp
-    @lng = params[:lng] || -77.036873 # temp
+    @city = City.find_by!(name: params[:location])
+    @lat = @city.latitude
+    @lng = @city.longitude
+
+
 
     raise ArgumentError if @start_date > @end_date
   end

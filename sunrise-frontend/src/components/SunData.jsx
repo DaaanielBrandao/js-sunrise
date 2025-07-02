@@ -5,7 +5,7 @@ function SunData() {
     const [data, setData] = useState(null)
 
     useEffect(() => {
-        fetch('http://localhost:3000/sun_data?location=Lisbon&start_date=2024-06-01&end_date=2024-06-03')
+        fetch('http://localhost:3000/sun_data?location=Lisbon&start_date=2025-07-01&end_date=2025-07-03')
             .then(response => response.json())
             .then(data => setData(data))
             .catch(error => console.error('Error:', error))
