@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  latitude: 1.5
+  longitude: 1.5
+  date: 2025-07-02
+  sunrise: 2025-07-02 11:27:05
+  sunset: 2025-07-02 11:27:05
+  golden_hour_morning_start: 2025-07-02 11:27:05
+  golden_hour_morning_end: 2025-07-02 11:27:05
+  golden_hour_evening_start: 2025-07-02 11:27:05
+  golden_hour_evening_end: 2025-07-02 11:27:05
+
+two:
+  latitude: 1.5
+  longitude: 1.5
+  date: 2025-07-02
+  sunrise: 2025-07-02 11:27:05
+  sunset: 2025-07-02 11:27:05
+  golden_hour_morning_start: 2025-07-02 11:27:05
+  golden_hour_morning_end: 2025-07-02 11:27:05
+  golden_hour_evening_start: 2025-07-02 11:27:05
+  golden_hour_evening_end: 2025-07-02 11:27:05

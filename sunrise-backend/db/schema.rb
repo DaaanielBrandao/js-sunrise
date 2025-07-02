@@ -10,8 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 0) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_02_111109) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "cities", force: :cascade do |t|
+    t.string "name"
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_cities_on_name", unique: true
+  end
+
+  create_table "sun_events", force: :cascade do |t|
+    t.float "latitude", null: false
+    t.float "longitude", null: false
+    t.date "date", null: false
+    t.datetime "sunrise"
+    t.datetime "sunset"
+    t.datetime "golden_hour_morning_start"
+    t.datetime "golden_hour_morning_end"
+    t.datetime "golden_hour_evening_start"
+    t.datetime "golden_hour_evening_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["latitude", "longitude", "date"], name: "index_sun_events_on_latitude_and_longitude_and_date", unique: true
+  end
 end

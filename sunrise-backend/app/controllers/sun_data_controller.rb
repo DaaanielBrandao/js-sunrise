@@ -1,47 +1,83 @@
 class SunDataController < ApplicationController
   def index
-    location = params[:location]
-    start_date = Date.parse(params[:start_date])
-    end_date = Date.parse(params[:end_date])
+    validate_params
 
-    #temp
-    lat = 38.907192
-    lng = -77.036873
+    sun_events = fetch_sun_events
 
-    api_service = SunriseSunsetApiService.new(
-      lat: lat,
-      lng: lng,
-      start_date: start_date,
-      end_date: end_date
-    )
-
-    api_response = api_service.fetch_data
-
-    if api_response["status"] == "OK"
-      render json: format_response(api_response)
-    else
-      render json: { error: "API Error" }, status: :service_unavailable
-    end
+    render json: {
+      from: params[:start_date],
+      to: params[:end_date],
+      data: sun_events
+    }
   rescue ArgumentError
     render json: { error: "Invalid parameters" }, status: :bad_request
   end
 
-  private def format_response(api_response)
-    results = api_response["results"]
-    {
-      from: results.first["date"],
-      to: results.last["date"],
-      data: results.map do |day|
-        {
-          date: day["date"],
-          sunrise: day["sunrise"],
-          sunset: day["sunset"],
-          golden_hour: {
-            morning: "#{day['dawn']} - #{day['sunrise']}",
-            evening: "#{day['golden_hour']} - #{day['dusk']}"
+  private
+
+  def validate_params
+    @start_date = Date.parse(params[:start_date])
+    @end_date = Date.parse(params[:end_date])
+    @lat = params[:lat] || 38.907192 # temp
+    @lng = params[:lng] || -77.036873 # temp
+
+    raise ArgumentError if @start_date > @end_date
+  end
+
+  def fetch_sun_events
+    date_range = (@start_date..@end_date).to_a
+    existing_events = SunEvent.where(
+      latitude: @lat,
+      longitude: @lng,
+      date: date_range
+    ).order(:date)
+
+    return existing_events if existing_events.count == date_range.size
+
+    missing_dates = find_missing_dates(date_range, existing_events)
+    fetch_and_save_missing_dates(missing_dates) if missing_dates.any?
+
+    SunEvent.where(
+      latitude: @lat,
+      longitude: @lng,
+      date: date_range
+    ).order(:date)
+  end
+
+  def find_missing_dates(date_range, existing_events)
+    existing_dates = existing_events.pluck(:date)
+    return date_range - existing_dates
+  end
+
+  def fetch_and_save_missing_dates(missing_dates)
+    api_service = SunriseSunsetApiService.new(
+      lat: @lat,
+      lng: @lng,
+      start_date: missing_dates.first,
+      end_date: missing_dates.last
+    )
+
+    response = api_service.fetch_data
+    return unless response["status"] == "OK"
+
+    response["results"].each do |data|
+      SunEvent.create!(
+        latitude: @lat,
+        longitude: @lng,
+        date: data["date"],
+        sunrise: data["sunrise"],
+        sunset: data["sunset"],
+        golden_hour: {
+          morning: {
+            start: data["dawn"],
+            end: data["sunrise"]
+          },
+          evening: {
+            start: data["golden_hour"],
+            end: data["dusk"]
           }
         }
-      end
-    }
+      )
+    end
   end
 end
