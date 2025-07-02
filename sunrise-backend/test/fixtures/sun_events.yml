@@ -4,20 +4,24 @@ one:
   latitude: 1.5
   longitude: 1.5
   date: 2025-07-02
-  sunrise: 2025-07-02 11:27:05
-  sunset: 2025-07-02 11:27:05
-  golden_hour_morning_start: 2025-07-02 11:27:05
-  golden_hour_morning_end: 2025-07-02 11:27:05
-  golden_hour_evening_start: 2025-07-02 11:27:05
-  golden_hour_evening_end: 2025-07-02 11:27:05
+  sunrise: 2025-07-02 15:43:46
+  sunset: 2025-07-02 15:43:46
+  first_light: 2025-07-02 15:43:46
+  last_light: 2025-07-02 15:43:46
+  dawn: 2025-07-02 15:43:46
+  dusk: 2025-07-02 15:43:46
+  solar_noon: 2025-07-02 15:43:46
+  golden_hour: 2025-07-02 15:43:46
 
 two:
   latitude: 1.5
   longitude: 1.5
   date: 2025-07-02
-  sunrise: 2025-07-02 11:27:05
-  sunset: 2025-07-02 11:27:05
-  golden_hour_morning_start: 2025-07-02 11:27:05
-  golden_hour_morning_end: 2025-07-02 11:27:05
-  golden_hour_evening_start: 2025-07-02 11:27:05
-  golden_hour_evening_end: 2025-07-02 11:27:05
+  sunrise: 2025-07-02 15:43:46
+  sunset: 2025-07-02 15:43:46
+  first_light: 2025-07-02 15:43:46
+  last_light: 2025-07-02 15:43:46
+  dawn: 2025-07-02 15:43:46
+  dusk: 2025-07-02 15:43:46
+  solar_noon: 2025-07-02 15:43:46
+  golden_hour: 2025-07-02 15:43:46

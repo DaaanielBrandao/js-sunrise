@@ -3,17 +3,14 @@ import { useForm, Controller } from 'react-hook-form'
 import { TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert } from '@mui/material'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format, parseISO, isAfter } from 'date-fns'
-
-function formatDateTime(dateTimeStr) {
-    if (!dateTimeStr) return ''
-    return format(parseISO(dateTimeStr), 'HH:mm')
-}
+import { parseISO, isAfter, format } from 'date-fns'
+import { fetchSunData } from '../services/sunDataService'
+import { formatDateTime, formatDate } from '../utils/dateFormatters'
 
 function SunData() {
     const [data, setData] = useState(null)
     const [error, setError] = useState(null)
-    const { control, handleSubmit, watch, formState: { errors } } = useForm({
+    const { control, handleSubmit, watch } = useForm({
         mode: 'onChange'
     })
 
@@ -21,24 +18,15 @@ function SunData() {
 
     const onSubmit = async (formData) => {
         setError(null)
-        const params = new URLSearchParams({
-            location: formData.location,
-            start_date: format(formData.startDate, 'yyyy-MM-dd'),
-            end_date: format(formData.endDate, 'yyyy-MM-dd')
-        })
-
         try {
-            const response = await fetch(`http://localhost:3000/sun_data?${params}`)
-            const jsonData = await response.json()
-
-            if (jsonData.error) {
-                setError(jsonData.error)
-                setData(null)
-            } else {
-                setData(jsonData)
-            }
-        } catch (error) {
-            setError('Failed to fetch data')
+            const jsonData = await fetchSunData(
+                formData.location,
+                formatDate(formData.startDate),
+                formatDate(formData.endDate)
+            )
+            setData(jsonData)
+        } catch (err) {
+            setError(err.message)
             setData(null)
         }
     }
@@ -127,24 +115,28 @@ function SunData() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Date</TableCell>
+                                    <TableCell>First Light</TableCell>
+                                    <TableCell>Dawn</TableCell>
                                     <TableCell>Sunrise</TableCell>
+                                    <TableCell>Solar Noon</TableCell>
                                     <TableCell>Sunset</TableCell>
-                                    <TableCell>Golden Hour Morning</TableCell>
-                                    <TableCell>Golden Hour Evening</TableCell>
+                                    <TableCell>Dusk</TableCell>
+                                    <TableCell>Last Light</TableCell>
+                                    <TableCell>Golden Hour</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {data.data.map((day) => (
                                     <TableRow key={day.date}>
                                         <TableCell>{format(parseISO(day.date), 'yyyy-MM-dd')}</TableCell>
-                                        <TableCell>{formatDateTime(day.sunrise)}</TableCell>
-                                        <TableCell>{formatDateTime(day.sunset)}</TableCell>
-                                        <TableCell>
-                                            {formatDateTime(day.golden_hour_morning_start)} - {formatDateTime(day.golden_hour_morning_end)}
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatDateTime(day.golden_hour_evening_start)} - {formatDateTime(day.golden_hour_evening_end)}
-                                        </TableCell>
+                                        <TableCell>{day.first_light ? formatDateTime(day.first_light) : '-'}</TableCell>
+                                        <TableCell>{day.dawn ? formatDateTime(day.dawn) : '-'}</TableCell>
+                                        <TableCell>{day.sunrise ? formatDateTime(day.sunrise) : '-'}</TableCell>
+                                        <TableCell>{day.solar_noon ? formatDateTime(day.solar_noon) : '-'}</TableCell>
+                                        <TableCell>{day.sunset ? formatDateTime(day.sunset) : '-'}</TableCell>
+                                        <TableCell>{day.dusk ? formatDateTime(day.dusk) : '-'}</TableCell>
+                                        <TableCell>{day.last_light ? formatDateTime(day.last_light) : '-'}</TableCell>
+                                        <TableCell>{day.golden_hour ? formatDateTime(day.golden_hour) : '-'}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

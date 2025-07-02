@@ -1,4 +1,4 @@
-class CreateSunEvents < ActiveRecord::Migration[7.0]
+class CreateSunEvents < ActiveRecord::Migration[8.0]
   def change
     create_table :sun_events do |t|
       t.float :latitude, null: false
@@ -6,10 +6,12 @@ class CreateSunEvents < ActiveRecord::Migration[7.0]
       t.date :date, null: false
       t.datetime :sunrise
       t.datetime :sunset
-      t.datetime :golden_hour_morning_start
-      t.datetime :golden_hour_morning_end
-      t.datetime :golden_hour_evening_start
-      t.datetime :golden_hour_evening_end
+      t.datetime :first_light
+      t.datetime :last_light
+      t.datetime :dawn
+      t.datetime :dusk
+      t.datetime :solar_noon
+      t.datetime :golden_hour
 
       t.timestamps
     end

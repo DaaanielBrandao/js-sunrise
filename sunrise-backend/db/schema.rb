@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_02_111109) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_02_144346) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,10 +29,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_111109) do
     t.date "date", null: false
     t.datetime "sunrise"
     t.datetime "sunset"
-    t.datetime "golden_hour_morning_start"
-    t.datetime "golden_hour_morning_end"
-    t.datetime "golden_hour_evening_start"
-    t.datetime "golden_hour_evening_end"
+    t.datetime "first_light"
+    t.datetime "last_light"
+    t.datetime "dawn"
+    t.datetime "dusk"
+    t.datetime "solar_noon"
+    t.datetime "golden_hour"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["latitude", "longitude", "date"], name: "index_sun_events_on_latitude_and_longitude_and_date", unique: true

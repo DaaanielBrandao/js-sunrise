@@ -70,16 +70,12 @@ class SunDataController < ApplicationController
         date: data["date"],
         sunrise: data["sunrise"],
         sunset: data["sunset"],
-        golden_hour: {
-          morning: {
-            start: data["dawn"],
-            end: data["sunrise"]
-          },
-          evening: {
-            start: data["golden_hour"],
-            end: data["dusk"]
-          }
-        }
+        first_light: data["first_light"],
+        last_light: data["last_light"],
+        dawn: data["dawn"],
+        dusk: data["dusk"],
+        solar_noon: data["solar_noon"],
+        golden_hour: data["golden_hour"],
       )
     end
   end
