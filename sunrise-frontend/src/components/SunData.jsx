@@ -1,15 +1,21 @@
 ﻿import {useState} from 'react'
 import {Controller, useForm} from 'react-hook-form'
-import {Alert, Box, Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from '@mui/material'
+import {Alert, Box, Button, Grid, TextField} from '@mui/material'
 import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers'
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns'
-import {format, isAfter, parseISO} from 'date-fns'
+import {isAfter, format} from 'date-fns'
 import {fetchSunData} from '../services/sunDataService'
-import {formatDate, formatDateTime} from '../utils/dateFormatters'
+import {formatDate} from '../utils/dateFormatters'
+import SunDataTable from './SunDataTable'
+import SunChart from './SunChart'
+import SunDataControls, { AVAILABLE_FIELDS } from './SunDataControls'
 
 function SunData() {
     const [data, setData] = useState(null)
     const [error, setError] = useState(null)
+    const [activeFields, setActiveFields] = useState(
+        AVAILABLE_FIELDS.map(field => field.id)
+    )
     const {control, handleSubmit, watch} = useForm({
         mode: 'onChange'
     })
@@ -21,14 +27,22 @@ function SunData() {
         try {
             const jsonData = await fetchSunData(
                 formData.location,
-                formatDate(formData.startDate),
-                formatDate(formData.endDate)
+                format(formData.startDate, 'yyyy-MM-dd'),
+                format(formData.endDate, 'yyyy-MM-dd')
             )
             setData(jsonData)
         } catch (err) {
             setError(err.message)
             setData(null)
         }
+    }
+
+    const handleFieldToggle = (fieldId) => {
+        setActiveFields(prev => 
+            prev.includes(fieldId)
+                ? prev.filter(id => id !== fieldId)
+                : [...prev, fieldId]
+        )
     }
 
     return (
@@ -50,134 +64,114 @@ function SunData() {
                 padding: 3,
                 position: 'relative'
             }}>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Controller
-                                name="location"
-                                control={control}
-                                defaultValue=""
-                                rules={{required: 'Location is required'}}
-                                render={({field, fieldState: {error}}) => (
-                                    <TextField
-                                        {...field}
-                                        label="Location"
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={9}>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <Controller
+                                        name="location"
+                                        control={control}
+                                        defaultValue=""
+                                        rules={{required: 'Location is required'}}
+                                        render={({field, fieldState: {error}}) => (
+                                            <TextField
+                                                {...field}
+                                                label="Location"
+                                                fullWidth
+                                                error={!!error}
+                                                helperText={error?.message}
+                                                sx={{backgroundColor: 'white'}}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Controller
+                                        name="startDate"
+                                        control={control}
+                                        rules={{required: 'Start date is required'}}
+                                        render={({field, fieldState: {error}}) => (
+                                            <DatePicker
+                                                {...field}
+                                                label="Start Date"
+                                                slotProps={{
+                                                    textField: {
+                                                        fullWidth: true,
+                                                        error: !!error,
+                                                        helperText: error?.message,
+                                                        sx: {backgroundColor: 'white'}
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Controller
+                                        name="endDate"
+                                        control={control}
+                                        rules={{
+                                            required: 'End date is required',
+                                            validate: (value) =>
+                                                !startDate || isAfter(value, startDate) || 'End date must be after start date'
+                                        }}
+                                        render={({field, fieldState: {error}}) => (
+                                            <DatePicker
+                                                {...field}
+                                                label="End Date"
+                                                minDate={startDate}
+                                                slotProps={{
+                                                    textField: {
+                                                        fullWidth: true,
+                                                        error: !!error,
+                                                        helperText: error?.message,
+                                                        sx: {backgroundColor: 'white'}
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
                                         fullWidth
-                                        error={!!error}
-                                        helperText={error?.message}
-                                        sx={{backgroundColor: 'white'}}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Controller
-                                name="startDate"
-                                control={control}
-                                rules={{required: 'Start date is required'}}
-                                render={({field, fieldState: {error}}) => (
-                                    <DatePicker
-                                        {...field}
-                                        label="Start Date"
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                error: !!error,
-                                                helperText: error?.message,
-                                                sx: {backgroundColor: 'white'}
-                                            }
-                                        }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Controller
-                                name="endDate"
-                                control={control}
-                                rules={{
-                                    required: 'End date is required',
-                                    validate: (value) =>
-                                        !startDate || isAfter(value, startDate) || 'End date must be after start date'
-                                }}
-                                render={({field, fieldState: {error}}) => (
-                                    <DatePicker
-                                        {...field}
-                                        label="End Date"
-                                        minDate={startDate}
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                error: !!error,
-                                                helperText: error?.message,
-                                                sx: {backgroundColor: 'white'}
-                                            }
-                                        }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                fullWidth
-                                sx={{py: 1.5}}
-                            >
-                                Get Sun Data
-                            </Button>
-                        </Grid>
+                                        sx={{py: 1.5}}
+                                    >
+                                        Get Sun Data
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </form>
+
+                        {error && (
+                            <Alert severity="error" sx={{mt: 2}}>
+                                {error}
+                            </Alert>
+                        )}
+
+                        {data && (
+                            <Box sx={{ 
+                                mt: 3, 
+                                p: 2, 
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                borderRadius: 2
+                            }}>
+                                <SunChart data={data} activeFields={activeFields} />
+                            </Box>
+                        )}
+
+                        <SunDataTable data={data} activeFields={activeFields} />
                     </Grid>
-                </form>
-
-                {error && (
-                    <Alert severity="error" sx={{mt: 2}}>
-                        {error}
-                    </Alert>
-                )}
-
-                {data && (
-                    <TableContainer
-                        component={Paper}
-                        sx={{
-                            mt: 3,
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            backdropFilter: 'blur(10px)',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>First Light</TableCell>
-                                    <TableCell>Dawn</TableCell>
-                                    <TableCell>Sunrise</TableCell>
-                                    <TableCell>Solar Noon</TableCell>
-                                    <TableCell>Sunset</TableCell>
-                                    <TableCell>Dusk</TableCell>
-                                    <TableCell>Last Light</TableCell>
-                                    <TableCell>Golden Hour</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {data.data.map((day) => (
-                                    <TableRow key={day.date}>
-                                        <TableCell>{format(parseISO(day.date), 'yyyy-MM-dd')}</TableCell>
-                                        <TableCell>{day.first_light ? formatDateTime(day.first_light) : '-'}</TableCell>
-                                        <TableCell>{day.dawn ? formatDateTime(day.dawn) : '-'}</TableCell>
-                                        <TableCell>{day.sunrise ? formatDateTime(day.sunrise) : '-'}</TableCell>
-                                        <TableCell>{day.solar_noon ? formatDateTime(day.solar_noon) : '-'}</TableCell>
-                                        <TableCell>{day.sunset ? formatDateTime(day.sunset) : '-'}</TableCell>
-                                        <TableCell>{day.dusk ? formatDateTime(day.dusk) : '-'}</TableCell>
-                                        <TableCell>{day.last_light ? formatDateTime(day.last_light) : '-'}</TableCell>
-                                        <TableCell>{day.golden_hour ? formatDateTime(day.golden_hour) : '-'}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                )}
+                    <Grid item xs={12} md={3}>
+                        <SunDataControls 
+                            activeFields={activeFields}
+                            onFieldToggle={handleFieldToggle}
+                        />
+                    </Grid>
+                </Grid>
             </Box>
         </LocalizationProvider>
     )
