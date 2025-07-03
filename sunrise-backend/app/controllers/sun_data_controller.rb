@@ -20,7 +20,7 @@ class SunDataController < ApplicationController
   def validate_params
     @start_date = Date.parse(params[:start_date])
     @end_date = Date.parse(params[:end_date])
-    @city = City.find_by!(name: params[:location])
+    @city = City.where("name ILIKE ?", params[:location]).first!
     @lat = @city.latitude
     @lng = @city.longitude
     raise ArgumentError if @start_date > @end_date
