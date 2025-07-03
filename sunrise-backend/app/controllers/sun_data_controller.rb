@@ -18,6 +18,10 @@ class SunDataController < ApplicationController
   private
 
   def validate_params
+    raise ArgumentError, "Start date is required" if params[:start_date].nil?
+    raise ArgumentError, "End date is required" if params[:end_date].nil?
+    raise ArgumentError, "Location is required" if params[:location].nil?
+
     @start_date = Date.parse(params[:start_date])
     @end_date = Date.parse(params[:end_date])
     @city = City.where("name ILIKE ?", params[:location]).first!
