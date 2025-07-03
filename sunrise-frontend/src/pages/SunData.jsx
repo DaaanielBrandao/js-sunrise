@@ -4,11 +4,11 @@ import {Alert, Box, Button, Grid, TextField} from '@mui/material'
 import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers'
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns'
 import {isAfter, format} from 'date-fns'
-import {fetchSunData} from '../services/sunDataService'
-import {formatDate} from '../utils/dateFormatters'
-import SunDataTable from './SunDataTable'
-import SunChart from './SunChart'
-import SunDataControls, { AVAILABLE_FIELDS } from './SunDataControls'
+import {fetchSunData} from '../services/sunDataService.js'
+import {formatDate} from '../utils/dateFormatters.js'
+import SunDataTable from '../components/SunDataTable.jsx'
+import SunChart from '../components/SunChart.jsx'
+import SunDataControls, { AVAILABLE_FIELDS } from '../components/SunDataControls.jsx'
 
 function SunData() {
     const [data, setData] = useState(null)
@@ -113,20 +113,25 @@ function SunData() {
                                         control={control}
                                         rules={{
                                             required: 'End date is required',
-                                            validate: (value) =>
-                                                !startDate || isAfter(value, startDate) || 'End date must be after start date'
+                                            validate: (value) => {
+                                                if (!startDate) return true
+                                                const maxDate = new Date(startDate)
+                                                maxDate.setDate(maxDate.getDate() + 30)
+                                                return (isAfter(value, startDate) || value.getTime() === startDate.getTime()) &&
+                                                    isAfter(maxDate, value) || 'End date must be within 30 days of the start date'                                            }
                                         }}
-                                        render={({field, fieldState: {error}}) => (
+                                        render={({ field, fieldState: { error } }) => (
                                             <DatePicker
                                                 {...field}
                                                 label="End Date"
                                                 minDate={startDate}
+                                                maxDate={startDate ? new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000) : undefined}
                                                 slotProps={{
                                                     textField: {
                                                         fullWidth: true,
                                                         error: !!error,
                                                         helperText: error?.message,
-                                                        sx: {backgroundColor: 'white'}
+                                                        sx: { backgroundColor: 'white' }
                                                     }
                                                 }}
                                             />
