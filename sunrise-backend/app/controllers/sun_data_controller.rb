@@ -64,19 +64,21 @@ class SunDataController < ApplicationController
     return unless response["status"] == "OK"
 
     response["results"].each do |data|
-      SunEvent.create!(
-        latitude: @lat,
-        longitude: @lng,
-        date: data["date"],
-        sunrise: data["sunrise"],
-        sunset: data["sunset"],
-        first_light: data["first_light"],
-        last_light: data["last_light"],
-        dawn: data["dawn"],
-        dusk: data["dusk"],
-        solar_noon: data["solar_noon"],
-        golden_hour: data["golden_hour"],
-      )
+      unless SunEvent.exists?(latitude: @lat, longitude: @lng, date: data["date"])
+        SunEvent.create!(
+          latitude: @lat,
+          longitude: @lng,
+          date: data["date"],
+          sunrise: data["sunrise"],
+          sunset: data["sunset"],
+          first_light: data["first_light"],
+          last_light: data["last_light"],
+          dawn: data["dawn"],
+          dusk: data["dusk"],
+          solar_noon: data["solar_noon"],
+          golden_hour: data["golden_hour"],
+          )
+      end
     end
   end
 end
