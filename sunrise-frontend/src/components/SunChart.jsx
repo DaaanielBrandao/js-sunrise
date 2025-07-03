@@ -10,16 +10,10 @@ import {
     Legend 
 } from 'recharts'
 import { AVAILABLE_FIELDS } from './SunDataControls'
+import { formatTime } from '../utils/dateFormatters'
 
 function SunChart({ data, activeFields }) {
     if (!data) return null
-
-    const formatTime = (decimalHours) => {
-        if (decimalHours === null || decimalHours === undefined) return '-'
-        const hours = Math.floor(decimalHours)
-        const minutes = Math.round((decimalHours - hours) * 60)
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
-    }
 
     const chartData = data.data.map(day => ({
         date: parseISO(day.date).toLocaleDateString(),
